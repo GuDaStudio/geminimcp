@@ -110,20 +110,20 @@ def windows_escape(prompt):
 @mcp.tool(
     name="gemini",
     description="""
-    Executes a non-interactive gemini session via CLI to perform AI-assisted coding tasks in a secure workspace.
-    This tool wraps the `gemini exec` command, enabling model-driven code generation, debugging, or automation based on natural language prompts.
-    It supports resuming ongoing sessions for continuity and enforces sandbox policies to prevent unsafe operations. Ideal for integrating gemini into MCP servers for agentic workflows, such as code reviews or repo modifications.
+    Invokes the Gemini CLI to execute AI-driven tasks, returning structured JSON events and a session identifier for conversation continuity. 
+    
+    **Return structure:**
+        - `success`: boolean indicating execution status
+        - `SESSION_ID`: unique identifier for resuming this conversation in future calls
+        - `agent_messages`: concatenated assistant response text
+        - `all_messages`: (optional) complete array of JSON events when `return_all_messages=True`
+        - `error`: error description when `success=False`
 
-    **Key Features:**
-        - **Prompt-Driven Execution:** Send task instructions to gemini for step-by-step code handling.
-        - **Workspace Isolation:** Operate within a specified directory, with optional Git repo skipping.
-        - **Security Controls:** Three sandbox levels balance functionality and safety.
-        - **Session Persistence:** Resume prior conversations via `SESSION_ID` for iterative tasks.
-
-    **Edge Cases & Best Practices:**
-        - Ensure `cd` exists and is accessible; tool fails silently on invalid paths.
-        - For most repos, prefer "read-only" to avoid accidental changes.
-        - If needed, set `return_all_messages` to `True` to parse "all_messages" for detailed tracing (e.g., reasoning, tool calls, etc.).
+    **Best practices:**
+        - Always capture and reuse `SESSION_ID` for multi-turn interactions
+        - Enable `sandbox` mode when file modifications should be isolated
+        - Use `return_all_messages` only when detailed execution traces are necessary (increases payload size)
+        - Only pass `model` when the user has explicitly requested a specific model
     """,
     meta={"version": "0.0.0", "author": "guda.studio"},
 )
@@ -153,7 +153,7 @@ async def gemini(
     else:
         PROMPT = PROMPT
 
-    cmd = ["gemini", PROMPT, "-o", "stream-json"]
+    cmd = ["gemini", "--prompt", PROMPT, "-o", "stream-json"]
 
     if sandbox:
         cmd.extend(["--sandbox"])
@@ -177,6 +177,11 @@ async def gemini(
             item_type = line_dict.get("type", "")
             item_role = line_dict.get("role", "")
             if item_type == "message" and item_role == "assistant":
+                if (
+                    "The --prompt (-p) flag has been deprecated and will be removed in a future version. Please use a positional argument for your prompt. See gemini --help for more information.\n"
+                    in line_dict.get("content", "")
+                ):
+                    continue
                 agent_messages = agent_messages + line_dict.get("content", "")
             if line_dict.get("session_id") is not None:
                 thread_id = line_dict.get("session_id")
