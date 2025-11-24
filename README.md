@@ -52,16 +52,12 @@
 
 **2.** 在Claude Code中**使用Gemini-MCP**，您可以通过[该链接](https://codepen.io/Studio-Guda/full/yyOpBVZ)进行在线预览！
 
-<video height="240">
-    <source src="./images/ccwgemini.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/1996980b-da6a-43cf-8c02-6c008f54ed18
 
 
 **3.** 仅使用Claude Code，您可以通过[该链接](https://codepen.io/Studio-Guda/full/ogxpvGY)进行在线预览！
 
-<video height="240">
-    <source src="./images/cc.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/18d59123-e972-410e-824a-7462d3d95dd5
 
 
 ---
