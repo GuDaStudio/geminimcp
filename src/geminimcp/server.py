@@ -195,20 +195,17 @@ async def gemini(
         except json.JSONDecodeError as error:
             # Improved error handling: include problematic line
             err_message = line
-            success = False
-            break
         except Exception as error:
             err_message = f"Unexpected error: {error}. Line: {line!r}"
-            success = False
-            break
 
-    if success and thread_id is None:
+
+    if thread_id is None:
         success = False
         err_message = (
             "Failed to get `SESSION_ID` from the gemini session. \n\n" + err_message
         )
 
-    if success and len(agent_messages) == 0:
+    if len(agent_messages) == 0:
         success = False
         err_message = (
             "Failed to get `agent_messages` from the gemini session. \n\n You can try to set `return_all_messages` to `True` to get the full information. \n\n "
